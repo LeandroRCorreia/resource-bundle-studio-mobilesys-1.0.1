@@ -1,0 +1,225 @@
+{
+  "name": "resource-bundle-studio",
+  "displayName": "Resource Bundle Studio",
+  "description": "Edit all locale .properties files side-by-side. Full feature parity with the Eclipse ResourceBundle Editor plugin.",
+  "version": "1.0.0",
+  "publisher": "maj2c",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maj2c/resource-bundle-studio"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Formatters",
+    "Linters"
+  ],
+  "keywords": [
+    "properties",
+    "i18n",
+    "l10n",
+    "resource bundle",
+    "localization",
+    "internationalization",
+    "java",
+    "messages"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "resourceBundleStudio.editor",
+        "displayName": "Resource Bundle Studio",
+        "selector": [
+          {
+            "filenamePattern": "*.properties"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "commands": [
+      {
+        "command": "resourceBundleStudio.addKey",
+        "title": "Add Key",
+        "category": "Resource Bundle"
+      },
+      {
+        "command": "resourceBundleStudio.removeKey",
+        "title": "Remove Key",
+        "category": "Resource Bundle"
+      },
+      {
+        "command": "resourceBundleStudio.renameKey",
+        "title": "Rename Key",
+        "category": "Resource Bundle"
+      },
+      {
+        "command": "resourceBundleStudio.duplicateKey",
+        "title": "Duplicate Key",
+        "category": "Resource Bundle"
+      },
+      {
+        "command": "resourceBundleStudio.findMissing",
+        "title": "Find Missing Translations",
+        "category": "Resource Bundle"
+      },
+      {
+        "command": "resourceBundleStudio.findDuplicates",
+        "title": "Find Duplicate Keys",
+        "category": "Resource Bundle"
+      },
+      {
+        "command": "resourceBundleStudio.sortKeys",
+        "title": "Sort Keys Alphabetically",
+        "category": "Resource Bundle"
+      },
+      {
+        "command": "resourceBundleStudio.convertToUnicode",
+        "title": "Convert Non-ASCII → \\uXXXX",
+        "category": "Resource Bundle"
+      },
+      {
+        "command": "resourceBundleStudio.convertFromUnicode",
+        "title": "Convert \\uXXXX → Characters",
+        "category": "Resource Bundle"
+      },
+      {
+        "command": "resourceBundleStudio.addLocale",
+        "title": "Add Locale to Bundle",
+        "category": "Resource Bundle"
+      },
+      {
+        "command": "resourceBundleStudio.newBundle",
+        "title": "New Resource Bundle…",
+        "category": "Resource Bundle",
+        "icon": "$(new-file)"
+      },
+      {
+        "command": "resourceBundleStudio.openBundle",
+        "title": "Open as Resource Bundle",
+        "category": "Resource Bundle"
+      },
+      {
+        "command": "resourceBundleStudio.exportCsv",
+        "title": "Export Bundle to CSV",
+        "category": "Resource Bundle"
+      },
+      {
+        "command": "resourceBundleStudio.importCsv",
+        "title": "Import Bundle from CSV",
+        "category": "Resource Bundle"
+      },
+      {
+        "command": "resourceBundleStudio.refresh",
+        "title": "Refresh",
+        "category": "Resource Bundle",
+        "icon": "$(refresh)"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "resourceBundleExplorer",
+          "name": "Resource Bundles",
+          "when": "workspaceFolderCount > 0",
+          "icon": "$(file)"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "resourceBundleStudio.refresh",
+          "when": "view == resourceBundleExplorer",
+          "group": "navigation"
+        },
+        {
+          "command": "resourceBundleStudio.newBundle",
+          "when": "view == resourceBundleExplorer",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "resourceBundleStudio.openBundle",
+          "when": "resourceExtname == .properties",
+          "group": "navigation@1"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Resource Bundle Studio",
+      "properties": {
+        "resourceBundleStudio.defaultLocale": {
+          "type": "string",
+          "default": "en",
+          "description": "Reference locale for column ordering and similarity comparison."
+        },
+        "resourceBundleStudio.highlightMissing": {
+          "type": "boolean",
+          "default": true,
+          "description": "Highlight cells with missing translations in red."
+        },
+        "resourceBundleStudio.highlightSimilar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Highlight cells whose value matches the reference locale in yellow."
+        },
+        "resourceBundleStudio.sortKeysOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically sort keys alphabetically on every save."
+        },
+        "resourceBundleStudio.convertUnicodeOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Convert non-ASCII characters to \\uXXXX escapes on save."
+        },
+        "resourceBundleStudio.keyGroupingSeparator": {
+          "type": "string",
+          "default": ".",
+          "description": "Separator used to split keys into groups in the hierarchical view."
+        },
+        "resourceBundleStudio.lineWrapLength": {
+          "type": "number",
+          "default": 0,
+          "description": "Wrap values at this column when serializing (0 = disabled)."
+        },
+        "resourceBundleStudio.showStatisticsBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a statistics bar at the bottom of the editor."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack --mode development --devtool source-map",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir dist",
+    "watch-tests": "tsc -p . -w --outDir dist",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./dist/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.0",
+    "@types/node": "^26.1.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^8.62.1",
+    "@typescript-eslint/parser": "^8.62.1",
+    "copy-webpack-plugin": "^14.0.0",
+    "eslint": "^8.57.0",
+    "ts-loader": "^9.5.0",
+    "typescript": "^5.3.0",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.0"
+  }
+}
