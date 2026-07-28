@@ -23,6 +23,10 @@ export interface PropertiesFile {
   entries: Map<string, PropertiesEntry>;
   /** Raw lines kept for round-trip serialization of untouched sections. */
   rawLines: string[];
+  /** Comments that are not associated with a property entry. */
+  standaloneComments: string[];
+  /** Original line ending detected while reading the file. */
+  lineEnding: '\r\n' | '\n' | '\r';
 }
 
 /** A group of .properties files sharing the same base name and folder. */

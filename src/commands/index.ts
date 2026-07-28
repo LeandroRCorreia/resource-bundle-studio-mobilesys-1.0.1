@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'node:path';
+import { EDITOR_VIEW_TYPE, EXTENSION_ID } from '../constants';
 import { ResourceBundleStudioProvider } from '../ResourceBundleStudioProvider';
 import { ResourceBundleExplorer } from '../ResourceBundleExplorer';
 import {
@@ -30,10 +31,10 @@ export function registerCommands(
     context.subscriptions.push(vscode.commands.registerCommand(id, fn));
 
   // -- Explorer refresh -------------------------------------------------------
-  reg('resourceBundleStudio.refresh', () => explorer.refresh());
+  reg(`${EXTENSION_ID}.refresh`, () => explorer.refresh());
 
   // -- New Bundle Wizard -----------------------------------------------------
-  reg('resourceBundleStudio.newBundle', async () => {
+  reg(`${EXTENSION_ID}.newBundle`, async () => {
     const folders = vscode.workspace.workspaceFolders;
     if (!folders) {
       vscode.window.showErrorMessage('Open a workspace folder first.');
@@ -73,11 +74,11 @@ export function registerCommands(
     const firstFilename =
       firstLocale === '' ? `${baseName}.properties` : `${baseName}_${firstLocale}.properties`;
     const firstUri = vscode.Uri.joinPath(folder, firstFilename);
-    await vscode.commands.executeCommand('vscode.openWith', firstUri, 'resourceBundleStudio.editor');
+    await vscode.commands.executeCommand('vscode.openWith', firstUri, EDITOR_VIEW_TYPE);
   });
 
   // -- Add Locale ------------------------------------------------------------
-  reg('resourceBundleStudio.addLocale', async () => {
+  reg(`${EXTENSION_ID}.addLocale`, async () => {
     const activeUri = getActivePropertiesUri();
     if (!activeUri) { return; }
 
@@ -94,7 +95,7 @@ export function registerCommands(
       return;
     }
 
-    const config = vscode.workspace.getConfiguration('resourceBundleStudio');
+    const config = vscode.workspace.getConfiguration(EXTENSION_ID);
     const refLocale: string = config.get('defaultLocale', 'en');
     const allKeys = mergeKeys(bundle, refLocale);
 
@@ -106,23 +107,23 @@ export function registerCommands(
 
     vscode.window.showInformationMessage(`Created "${newFilename}" with ${allKeys.length} keys.`);
     await explorer.refresh();
-    await vscode.commands.executeCommand('vscode.openWith', newUri, 'resourceBundleStudio.editor');
+    await vscode.commands.executeCommand('vscode.openWith', newUri, EDITOR_VIEW_TYPE);
   });
 
   // -- Open as Resource Bundle -----------------------------------------------
-  reg('resourceBundleStudio.openBundle', async (uri: unknown) => {
+  reg(`${EXTENSION_ID}.openBundle`, async (uri: unknown) => {
     const target = uri instanceof vscode.Uri ? uri : getActivePropertiesUri();
     if (!target) { return; }
-    await vscode.commands.executeCommand('vscode.openWith', target, 'resourceBundleStudio.editor');
+    await vscode.commands.executeCommand('vscode.openWith', target, EDITOR_VIEW_TYPE);
   });
 
   // -- Sort Keys -------------------------------------------------------------
-  reg('resourceBundleStudio.sortKeys', async () => {
+  reg(`${EXTENSION_ID}.sortKeys`, async () => {
     const activeUri = getActivePropertiesUri();
     if (!activeUri) { return; }
 
     const bundle = await loadBundle(activeUri);
-    const config = vscode.workspace.getConfiguration('resourceBundleStudio');
+    const config = vscode.workspace.getConfiguration(EXTENSION_ID);
     const convertUnicode: boolean = config.get('convertUnicodeOnSave', false);
 
     for (const [, file] of bundle.files) {
@@ -136,7 +137,7 @@ export function registerCommands(
   });
 
   // -- Convert Non-ASCII → \uXXXX --------------------------------------------
-  reg('resourceBundleStudio.convertToUnicode', async () => {
+  reg(`${EXTENSION_ID}.convertToUnicode`, async () => {
     const activeUri = getActivePropertiesUri();
     if (!activeUri) { return; }
 
@@ -149,7 +150,7 @@ export function registerCommands(
   });
 
   // -- Convert \uXXXX → Characters -------------------------------------------
-  reg('resourceBundleStudio.convertFromUnicode', async () => {
+  reg(`${EXTENSION_ID}.convertFromUnicode`, async () => {
     const activeUri = getActivePropertiesUri();
     if (!activeUri) { return; }
 
@@ -168,16 +169,16 @@ export function registerCommands(
   });
 
   // -- Find Missing Translations ---------------------------------------------
-  reg('resourceBundleStudio.findMissing', async () => {
+  reg(`${EXTENSION_ID}.findMissing`, async () => {
     const activeUri = getActivePropertiesUri();
     if (!activeUri) { return; }
 
     const bundle = await loadBundle(activeUri);
-    const config = vscode.workspace.getConfiguration('resourceBundleStudio');
+    const config = vscode.workspace.getConfiguration(EXTENSION_ID);
     const refLocale: string = config.get('defaultLocale', 'en');
     const allKeys = mergeKeys(bundle, refLocale);
 
-    const diagnosticCollection = vscode.languages.createDiagnosticCollection('resourceBundleStudio');
+    const diagnosticCollection = vscode.languages.createDiagnosticCollection(EXTENSION_ID);
     context.subscriptions.push(diagnosticCollection);
     diagnosticCollection.clear();
 
@@ -213,7 +214,7 @@ export function registerCommands(
   });
 
   // -- Find Duplicate Keys ---------------------------------------------------
-  reg('resourceBundleStudio.findDuplicates', async () => {
+  reg(`${EXTENSION_ID}.findDuplicates`, async () => {
     const activeUri = getActivePropertiesUri();
     if (!activeUri) { return; }
 
@@ -238,12 +239,12 @@ export function registerCommands(
   });
 
   // -- Export to CSV ---------------------------------------------------------
-  reg('resourceBundleStudio.exportCsv', async () => {
+  reg(`${EXTENSION_ID}.exportCsv`, async () => {
     const activeUri = getActivePropertiesUri();
     if (!activeUri) { return; }
 
     const bundle = await loadBundle(activeUri);
-    const config = vscode.workspace.getConfiguration('resourceBundleStudio');
+    const config = vscode.workspace.getConfiguration(EXTENSION_ID);
     const refLocale: string = config.get('defaultLocale', 'en');
     const locales = sortedLocales(bundle, refLocale);
     const allKeys = mergeKeys(bundle, refLocale);
@@ -268,7 +269,7 @@ export function registerCommands(
   });
 
   // -- Import from CSV -------------------------------------------------------
-  reg('resourceBundleStudio.importCsv', async () => {
+  reg(`${EXTENSION_ID}.importCsv`, async () => {
     const uris = await pickOpenUri({ CSV: ['csv'] });
     if (!uris || uris.length === 0) { return; }
 

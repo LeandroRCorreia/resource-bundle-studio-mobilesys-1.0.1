@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { PropertiesEntry, PropertiesFile } from './types';
 import { readFile } from './utils/fileUtils';
-import { fromUnicodeEscapes } from './utils/unicodeUtils';
+import { unescapeValue } from './utils/unicodeUtils';
 
 /**
  * Full-featured parser for Java .properties files (RFC / java.util.Properties spec).
@@ -20,9 +20,11 @@ export async function parsePropertiesFile( // NOSONAR typescript:S3776
   locale: string
 ): Promise<PropertiesFile> {
   const text = await readFile(uri);
-  const rawLines = text.split(/\r?\n/);
+  const lineEnding = text.match(/\r\n|\n|\r/)?.[0] as '\r\n' | '\n' | '\r' | undefined;
+  const rawLines = text.split(/\r\n|\n|\r/);
   const entries = new Map<string, PropertiesEntry>();
   const keyOrder: string[] = [];
+  const standaloneComments: string[] = [];
 
   let i = 0;
   while (i < rawLines.length) {
@@ -70,6 +72,7 @@ export async function parsePropertiesFile( // NOSONAR typescript:S3776
         }
       }
       // Standalone comments with no following key — just continue
+      standaloneComments.push(...commentLines);
       continue;
     }
 
@@ -85,7 +88,15 @@ export async function parsePropertiesFile( // NOSONAR typescript:S3776
     }
   }
 
-  return { uri, locale, keyOrder, entries, rawLines };
+  return {
+    uri,
+    locale,
+    keyOrder,
+    entries,
+    rawLines,
+    standaloneComments,
+    lineEnding: lineEnding ?? (process.platform === 'win32' ? '\r\n' : '\n'),
+  };
 }
 
 /** Parse a logical line (handling backslash continuation) starting at `startIdx`. */
@@ -97,18 +108,14 @@ function parseKeyValue(
   let i = startIdx;
 
   while (i < lines.length) {
-    const raw = lines[i];
-    if (raw.trimEnd().endsWith('\\') && !raw.trimEnd().endsWith('\\\\')) {
-      logical += raw.trimEnd().slice(0, -1);
-      i++;
-      // Strip leading whitespace from continuation lines
-      if (i < lines.length) {
-        logical += lines[i].trimStart();
-      }
-    } else {
+    const raw = i === startIdx ? lines[i] : lines[i].replace(/^[ \t\f]+/, '');
+    const trailingBackslashes = raw.match(/\\+$/)?.[0].length ?? 0;
+    if (trailingBackslashes % 2 === 0) {
       logical += raw;
       break;
     }
+
+    logical += raw.slice(0, -1);
     i++;
   }
 
@@ -141,8 +148,8 @@ function parseKeyValue(
     rest = rest.slice(1).trimStart();
   }
 
-  const key = fromUnicodeEscapes(rawKey.replace(/\\(.)/g, '$1'));
-  const value = fromUnicodeEscapes(rest);
+  const key = unescapeValue(rawKey);
+  const value = unescapeValue(rest);
 
   return { key, value, endLine: i };
 }

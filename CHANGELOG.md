@@ -3,6 +3,26 @@
 All notable changes to **Resource Bundle Studio** will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.1] - 2026-07-28
+
+### Changed
+
+- Established the internal Mobilesys fork identity.
+- Namespaced public commands, settings, views, and custom editor IDs under
+  `mobilesys.resourceBundleStudio`.
+- Updated serialization defaults to match the Eclipse ResourceBundle Editor
+  formatting used by Mobilesys projects.
+- Documented that the original extension must not be installed simultaneously.
+
+### Fixed
+
+- Made Java `.properties` escape parsing and serialization idempotent to prevent
+  repeated backslash multiplication.
+- Preserved comments, Unicode semantics, placeholders, and values containing
+  separators during serialization.
+
+The original project history and credits are preserved below.
+
 ## [1.0.0] - 2026-07-01
 
 ### Added
