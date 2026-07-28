@@ -1,9 +1,12 @@
-# Resource Bundle Studio for VS Code
+# Resource Bundle Studio (Mobilesys)
 
-A full-featured editor for Java `.properties` resource bundle files,
-bringing every capability of the classic Eclipse **ResourceBundle Editor** plugin
-into VS Code — plus extras like CSV export, drag-and-drop reordering, and a
-dedicated sidebar explorer.
+Internal Mobilesys fork of [Resource Bundle Studio](https://github.com/maj2c/resource-bundle-studio),
+distributed under the original MIT license. It provides a VS Code editor for Java
+`.properties` resource bundles, with Eclipse-compatible formatting and a
+side-by-side locale editor.
+
+> Do not install this fork and the original extension simultaneously. They provide
+> editors for the same file type and may compete for `.properties` files.
 
 ---
 
@@ -26,7 +29,7 @@ dedicated sidebar explorer.
 | **Find missing** | Populates the VS Code Problems panel with warnings. |
 | **Find duplicates** | Lists duplicate keys per locale in Quick Pick. |
 | **Sidebar explorer** | Groups all workspace bundles by base name. |
-| **Comment preservation** | `#` / `!` comment blocks survive parse → serialize round-trips. |
+| **Comment preservation** | `#` / `!` comment text survives parse → serialize round-trips. |
 | **Multi-line values** | Handles backslash line-continuation transparently. |
 | **Auto-refresh** | Editor reloads when files change on disk. |
 
@@ -36,17 +39,16 @@ dedicated sidebar explorer.
 
 ### Install
 
-```bash
-# From the VS Code Marketplace
-ext install resource-bundle-studio
+This internal fork is distributed as a VSIX and is not installed from the public
+Marketplace.
 
-# Or build locally
-git clone https://github.com/your-org/resource-bundle-studio
-cd resource-bundle-studio
-npm install
-npm run compile
-# Press F5 in VS Code to launch the Extension Development Host
+```bash
+npm ci
+npx @vscode/vsce package
+code --install-extension ./resource-bundle-studio-mobilesys-1.0.1.vsix --force
 ```
+
+Reload the VS Code window after installation.
 
 ### Open a bundle
 
@@ -72,18 +74,23 @@ npm run compile
 
 ## Configuration
 
-All settings live under `resourceBundleStudio.*` in VS Code Settings.
+All settings live under `mobilesys.resourceBundleStudio.*` in VS Code Settings.
 
 | Setting | Default | Description |
 | --- | --- | --- |
 | `defaultLocale` | `"en"` | Reference locale — shown first, used for similarity comparison |
 | `highlightMissing` | `true` | Red background for empty/missing cells |
 | `highlightSimilar` | `true` | Yellow background when value equals the reference locale |
-| `sortKeysOnSave` | `false` | Sort keys alphabetically on every save |
-| `convertUnicodeOnSave` | `false` | Convert non-ASCII to `\uXXXX` on every save |
+| `sortKeysOnSave` | `true` | Sort keys alphabetically on every save |
+| `convertUnicodeOnSave` | `true` | Convert non-ASCII to `\uXXXX` on every save |
 | `keyGroupingSeparator` | `"."` | Separator for tree-view grouping |
 | `lineWrapLength` | `0` | Wrap values at this column width (0 = off) |
+| `lineWrapIndent` | `8` | Indentation used for wrapped continuation lines |
 | `showStatisticsBar` | `true` | Toggle the bottom status bar |
+
+The serializer preserves comment text, placeholders such as `{0}`, Java escapes,
+accented characters, and values containing `=` or `:`. Blank-line placement is
+normalized to Eclipse-style key grouping and is not preserved byte-for-byte.
 
 ---
 
@@ -137,8 +144,8 @@ registerCommands         → palette + context-menu commands
 
 ## Contributing
 
-1. Fork the repository and create a feature branch.
-2. `npm install` then `npm run watch` to compile in watch mode.
+1. Create a feature branch in the internal repository.
+2. `npm ci` then `npm run watch` to compile in watch mode.
 3. Press `F5` in VS Code to open the Extension Development Host.
 4. Open any folder containing `.properties` files to test.
 5. Run `npm run lint` before submitting a pull request.
@@ -147,4 +154,8 @@ registerCommands         → palette + context-menu commands
 
 ## License
 
-MIT © 2026 Resource Bundle Studio Contributors
+MIT © 2026 Resource Bundle Studio Contributors.
+
+This fork preserves the license and credits of the
+[original Resource Bundle Studio project](https://github.com/maj2c/resource-bundle-studio).
+Mobilesys maintains the internal fork-specific changes.

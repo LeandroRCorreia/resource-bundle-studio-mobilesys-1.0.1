@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { ResourceBundleStudioProvider } from './ResourceBundleStudioProvider';
 import { ResourceBundleExplorer } from './ResourceBundleExplorer';
 import { registerCommands } from './commands/index';
+import { EXPLORER_VIEW_ID, EXTENSION_ID } from './constants';
 
 export function activate(context: vscode.ExtensionContext): void {
   // Register the custom editor provider
@@ -10,7 +11,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Register the sidebar explorer tree view
   const explorer = new ResourceBundleExplorer(context);
-  const treeView = vscode.window.createTreeView('resourceBundleExplorer', {
+  const treeView = vscode.window.createTreeView(EXPLORER_VIEW_ID, {
     treeDataProvider: explorer,
     showCollapseAll: true,
   });
@@ -24,8 +25,8 @@ export function activate(context: vscode.ExtensionContext): void {
   // Watch workspace config changes and notify open editors
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration('resourceBundleStudio')) {
-        vscode.commands.executeCommand('resourceBundleStudio.refresh');
+      if (e.affectsConfiguration(EXTENSION_ID)) {
+        vscode.commands.executeCommand(`${EXTENSION_ID}.refresh`);
       }
     })
   );

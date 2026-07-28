@@ -1,7 +1,16 @@
 node_modules/
 dist/
 out/
+target/
 *.vsix
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*~
 .vscode-test/
 coverage/
 .DS_Store

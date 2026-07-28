@@ -1,13 +1,17 @@
 {
-  "name": "resource-bundle-studio",
-  "displayName": "Resource Bundle Studio",
-  "description": "Edit all locale .properties files side-by-side. Full feature parity with the Eclipse ResourceBundle Editor plugin.",
-  "version": "1.0.0",
-  "publisher": "maj2c",
+  "name": "resource-bundle-studio-mobilesys",
+  "displayName": "Resource Bundle Studio (Mobilesys)",
+  "description": "Internal Mobilesys fork for editing locale .properties files side-by-side.",
+  "version": "1.0.1",
+  "publisher": "mobilesys-internal",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/maj2c/resource-bundle-studio"
+    "url": "https://github.com/LeandroRCorreia/resource-bundle-studio-mobilesys-1.0.1.git"
+  },
+  "homepage": "https://github.com/LeandroRCorreia/resource-bundle-studio-mobilesys-1.0.1#readme",
+  "bugs": {
+    "url": "https://github.com/LeandroRCorreia/resource-bundle-studio-mobilesys-1.0.1/issues"
   },
   "engines": {
     "vscode": "^1.85.0"
@@ -32,8 +36,8 @@
   "contributes": {
     "customEditors": [
       {
-        "viewType": "resourceBundleStudio.editor",
-        "displayName": "Resource Bundle Studio",
+        "viewType": "mobilesys.resourceBundleStudio.editor",
+        "displayName": "Resource Bundle Studio (Mobilesys)",
         "selector": [
           {
             "filenamePattern": "*.properties"
@@ -44,78 +48,78 @@
     ],
     "commands": [
       {
-        "command": "resourceBundleStudio.addKey",
+        "command": "mobilesys.resourceBundleStudio.addKey",
         "title": "Add Key",
         "category": "Resource Bundle"
       },
       {
-        "command": "resourceBundleStudio.removeKey",
+        "command": "mobilesys.resourceBundleStudio.removeKey",
         "title": "Remove Key",
         "category": "Resource Bundle"
       },
       {
-        "command": "resourceBundleStudio.renameKey",
+        "command": "mobilesys.resourceBundleStudio.renameKey",
         "title": "Rename Key",
         "category": "Resource Bundle"
       },
       {
-        "command": "resourceBundleStudio.duplicateKey",
+        "command": "mobilesys.resourceBundleStudio.duplicateKey",
         "title": "Duplicate Key",
         "category": "Resource Bundle"
       },
       {
-        "command": "resourceBundleStudio.findMissing",
+        "command": "mobilesys.resourceBundleStudio.findMissing",
         "title": "Find Missing Translations",
         "category": "Resource Bundle"
       },
       {
-        "command": "resourceBundleStudio.findDuplicates",
+        "command": "mobilesys.resourceBundleStudio.findDuplicates",
         "title": "Find Duplicate Keys",
         "category": "Resource Bundle"
       },
       {
-        "command": "resourceBundleStudio.sortKeys",
+        "command": "mobilesys.resourceBundleStudio.sortKeys",
         "title": "Sort Keys Alphabetically",
         "category": "Resource Bundle"
       },
       {
-        "command": "resourceBundleStudio.convertToUnicode",
+        "command": "mobilesys.resourceBundleStudio.convertToUnicode",
         "title": "Convert Non-ASCII → \\uXXXX",
         "category": "Resource Bundle"
       },
       {
-        "command": "resourceBundleStudio.convertFromUnicode",
+        "command": "mobilesys.resourceBundleStudio.convertFromUnicode",
         "title": "Convert \\uXXXX → Characters",
         "category": "Resource Bundle"
       },
       {
-        "command": "resourceBundleStudio.addLocale",
+        "command": "mobilesys.resourceBundleStudio.addLocale",
         "title": "Add Locale to Bundle",
         "category": "Resource Bundle"
       },
       {
-        "command": "resourceBundleStudio.newBundle",
+        "command": "mobilesys.resourceBundleStudio.newBundle",
         "title": "New Resource Bundle…",
         "category": "Resource Bundle",
         "icon": "$(new-file)"
       },
       {
-        "command": "resourceBundleStudio.openBundle",
+        "command": "mobilesys.resourceBundleStudio.openBundle",
         "title": "Open as Resource Bundle",
         "category": "Resource Bundle"
       },
       {
-        "command": "resourceBundleStudio.exportCsv",
+        "command": "mobilesys.resourceBundleStudio.exportCsv",
         "title": "Export Bundle to CSV",
         "category": "Resource Bundle"
       },
       {
-        "command": "resourceBundleStudio.importCsv",
+        "command": "mobilesys.resourceBundleStudio.importCsv",
         "title": "Import Bundle from CSV",
         "category": "Resource Bundle"
       },
       {
-        "command": "resourceBundleStudio.refresh",
+        "command": "mobilesys.resourceBundleStudio.refresh",
         "title": "Refresh",
         "category": "Resource Bundle",
         "icon": "$(refresh)"
@@ -124,8 +128,8 @@
     "views": {
       "explorer": [
         {
-          "id": "resourceBundleExplorer",
-          "name": "Resource Bundles",
+          "id": "mobilesys.resourceBundleStudio.explorer",
+          "name": "Resource Bundles (Mobilesys)",
           "when": "workspaceFolderCount > 0",
           "icon": "$(file)"
         }
@@ -134,63 +138,69 @@
     "menus": {
       "view/title": [
         {
-          "command": "resourceBundleStudio.refresh",
-          "when": "view == resourceBundleExplorer",
+          "command": "mobilesys.resourceBundleStudio.refresh",
+          "when": "view == mobilesys.resourceBundleStudio.explorer",
           "group": "navigation"
         },
         {
-          "command": "resourceBundleStudio.newBundle",
-          "when": "view == resourceBundleExplorer",
+          "command": "mobilesys.resourceBundleStudio.newBundle",
+          "when": "view == mobilesys.resourceBundleStudio.explorer",
           "group": "navigation"
         }
       ],
       "explorer/context": [
         {
-          "command": "resourceBundleStudio.openBundle",
+          "command": "mobilesys.resourceBundleStudio.openBundle",
           "when": "resourceExtname == .properties",
           "group": "navigation@1"
         }
       ]
     },
     "configuration": {
-      "title": "Resource Bundle Studio",
+      "title": "Resource Bundle Studio (Mobilesys)",
       "properties": {
-        "resourceBundleStudio.defaultLocale": {
+        "mobilesys.resourceBundleStudio.defaultLocale": {
           "type": "string",
           "default": "en",
           "description": "Reference locale for column ordering and similarity comparison."
         },
-        "resourceBundleStudio.highlightMissing": {
+        "mobilesys.resourceBundleStudio.highlightMissing": {
           "type": "boolean",
           "default": true,
           "description": "Highlight cells with missing translations in red."
         },
-        "resourceBundleStudio.highlightSimilar": {
+        "mobilesys.resourceBundleStudio.highlightSimilar": {
           "type": "boolean",
           "default": true,
           "description": "Highlight cells whose value matches the reference locale in yellow."
         },
-        "resourceBundleStudio.sortKeysOnSave": {
+        "mobilesys.resourceBundleStudio.sortKeysOnSave": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Automatically sort keys alphabetically on every save."
         },
-        "resourceBundleStudio.convertUnicodeOnSave": {
+        "mobilesys.resourceBundleStudio.convertUnicodeOnSave": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Convert non-ASCII characters to \\uXXXX escapes on save."
         },
-        "resourceBundleStudio.keyGroupingSeparator": {
+        "mobilesys.resourceBundleStudio.keyGroupingSeparator": {
           "type": "string",
           "default": ".",
           "description": "Separator used to split keys into groups in the hierarchical view."
         },
-        "resourceBundleStudio.lineWrapLength": {
+        "mobilesys.resourceBundleStudio.lineWrapLength": {
           "type": "number",
           "default": 0,
           "description": "Wrap values at this column when serializing (0 = disabled)."
         },
-        "resourceBundleStudio.showStatisticsBar": {
+        "mobilesys.resourceBundleStudio.lineWrapIndent": {
+          "type": "number",
+          "default": 8,
+          "minimum": 0,
+          "description": "Number of spaces used for wrapped continuation lines, matching Eclipse ResourceBundle Editor."
+        },
+        "mobilesys.resourceBundleStudio.showStatisticsBar": {
           "type": "boolean",
           "default": true,
           "description": "Show a statistics bar at the bottom of the editor."

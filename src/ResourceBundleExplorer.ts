@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'node:path';
+import { EDITOR_VIEW_TYPE } from './constants';
 import { parseBundleFilename } from './utils/bundleUtils';
 
 // -- Tree node types ----------------------------------------------------------
@@ -38,7 +39,7 @@ class LocaleNode extends vscode.TreeItem {
     this.command = {
       command: 'vscode.openWith',
       title: 'Open Resource Bundle',
-      arguments: [uri, 'resourceBundleStudio.editor'],
+      arguments: [uri, EDITOR_VIEW_TYPE],
     };
   }
 }

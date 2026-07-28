@@ -1,6 +1,6 @@
-export const EXTENSION_ID = 'resourceBundleStudio';
+export const EXTENSION_ID = 'mobilesys.resourceBundleStudio';
 export const EDITOR_VIEW_TYPE = `${EXTENSION_ID}.editor`;
-export const EXPLORER_VIEW_ID = 'resourceBundleExplorer';
+export const EXPLORER_VIEW_ID = `${EXTENSION_ID}.explorer`;
 
 /** Regex that matches a .properties filename and captures baseName + locale.
  *  Handles: messages.properties  messages_en.properties  messages_en_US.properties

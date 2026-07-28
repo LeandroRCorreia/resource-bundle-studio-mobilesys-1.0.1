@@ -5,8 +5,9 @@
 export function toUnicodeEscapes(input: string): string {
   let result = '';
   for (let i = 0; i < input.length; i++) {
-    const code = input.codePointAt(i);
-    if (code && code > 127) {
+    // Java .properties escapes UTF-16 code units, including surrogate pairs.
+    const code = input.charCodeAt(i);
+    if (code < 0x20 || code > 0x7e) {
       result += String.raw`\u${code.toString(16).toUpperCase().padStart(4, '0')}`;
     } else {
       result += input[i];
@@ -42,13 +43,38 @@ export function escapeValue(value: string): string {
  * Unescapes special sequences in a parsed value string.
  */
 export function unescapeValue(value: string): string {
-  return value
-    .replaceAll(String.raw`\n`, '\n')
-    .replaceAll(String.raw`\r`, '\r')
-    .replaceAll(String.raw`\t`, '\t')
-    .replaceAll(String.raw`\f`, '\f')
-    .replaceAll('\\\\', '\\')
-    .replaceAll(String.raw`\ `, ' ');
+  let result = '';
+
+  for (let i = 0; i < value.length; i++) {
+    const current = value[i];
+    if (current !== '\\' || i + 1 >= value.length) {
+      result += current;
+      continue;
+    }
+
+    const escaped = value[++i];
+    switch (escaped) {
+      case 'n': result += '\n'; break;
+      case 'r': result += '\r'; break;
+      case 't': result += '\t'; break;
+      case 'f': result += '\f'; break;
+      case 'u': {
+        const hex = value.slice(i + 1, i + 5);
+        if (/^[0-9A-Fa-f]{4}$/.test(hex)) {
+          result += String.fromCharCode(Number.parseInt(hex, 16));
+          i += 4;
+        } else {
+          result += String.raw`\u`;
+        }
+        break;
+      }
+      default:
+        // Java Properties removes the escape marker for other characters.
+        result += escaped;
+    }
+  }
+
+  return result;
 }
 
 /**

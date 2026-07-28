@@ -1,5 +1,5 @@
 import { PropertiesFile } from './types';
-import { escapeKey, escapeValue, toUnicodeEscapes } from './utils/unicodeUtils';
+import { toUnicodeEscapes } from './utils/unicodeUtils';
 
 export interface SerializeOptions {
   /** Sort keys alphabetically before writing. */
@@ -10,6 +10,8 @@ export interface SerializeOptions {
   lineWrapLength?: number;
   /** Use CRLF line endings. */
   crlf?: boolean;
+  /** Spaces used by Eclipse for continuation lines. */
+  lineWrapIndent?: number;
 }
 
 /**
@@ -21,66 +23,128 @@ export function serializePropertiesFile( // NOSONAR typescript:S3776
   options: SerializeOptions = {}
 ): string {
   const {
-    sortKeys = false,
-    convertUnicode = false,
+    sortKeys = true,
+    convertUnicode = true,
     lineWrapLength = 0,
-    crlf = false,
+    crlf = true,
+    lineWrapIndent = 8,
   } = options;
 
-  const eol = crlf ? '\r\n' : '\n';
+  const eol = crlf ? '\r\n' : file.lineEnding;
   const keys = sortKeys
-    ? [...file.keyOrder].sort((a, b) => a.localeCompare(b))
+    ? [...file.keyOrder].sort()
     : [...file.keyOrder];
 
   const lines: string[] = [];
+  let previousGroup: string | null | undefined;
 
   for (const key of keys) {
     const entry = file.entries.get(key);
     if (!entry) { continue; }
 
+    const group = key.includes('.') ? key.slice(0, key.indexOf('.')) : null;
+    if (group === null || group !== previousGroup) {
+      lines.push('');
+      previousGroup = group;
+    }
+
     // Re-attach comment block
     if (entry.comment) {
-      // Preserve blank line before comment block (unless it's the first entry)
-      if (lines.length > 0) {
-        lines.push('');
-      }
-      for (const commentLine of entry.comment.split('\n')) {
+      for (const commentLine of entry.comment.split(/\r\n|\n|\r/)) {
         lines.push(commentLine);
       }
     }
 
-    const serializedKey = escapeKey(key);
-    let serializedValue = escapeValue(entry.value);
-    if (convertUnicode) {
-      serializedValue = toUnicodeEscapes(serializedValue);
-    }
+    const serializedKey = serializeKey(key, convertUnicode);
+    const equalColumn = getEqualColumn(key, group, keys);
+    const padding = ' '.repeat(Math.max(1, equalColumn - key.length + 1));
+    const serializedValue = serializeValue(entry.value, convertUnicode);
 
-    const kvLine = `${serializedKey}=${serializedValue}`;
+    const prefix = `${serializedKey}${padding}= `;
+    const kvLine = `${prefix}${serializedValue}`;
 
     if (lineWrapLength > 0 && kvLine.length > lineWrapLength) {
-      lines.push(...wrapLine(serializedKey, serializedValue, lineWrapLength));
+      lines.push(...wrapLine(prefix, serializedValue, lineWrapLength, lineWrapIndent));
     } else {
       lines.push(kvLine);
     }
   }
 
+  if (file.standaloneComments.length > 0) {
+    lines.push('', ...file.standaloneComments);
+  }
+
   return lines.join(eol) + eol;
+}
+
+function serializeValue(value: string, convertUnicode: boolean): string {
+  let serialized = value
+    .replaceAll('\\', '\\\\')
+    .replaceAll('\r', String.raw`\r`)
+    .replaceAll('\n', String.raw`\n`);
+
+  if (convertUnicode) {
+    serialized = toUnicodeEscapes(serialized);
+  } else {
+    serialized = serialized
+      .replaceAll('\t', String.raw`\t`)
+      .replaceAll('\f', String.raw`\f`);
+  }
+
+  return serialized.startsWith(' ') ? `\\${serialized}` : serialized;
+}
+
+function serializeKey(key: string, convertUnicode: boolean): string {
+  let serialized = '';
+
+  for (let i = 0; i < key.length; i++) {
+    const character = key[i];
+    const code = key.charCodeAt(i);
+
+    if (convertUnicode && (code < 0x20 || code > 0x7e)) {
+      serialized += String.raw`\u${code.toString(16).toUpperCase().padStart(4, '0')}`;
+    } else {
+      if ('=	\f#!: '.includes(character) || character === '\\') {
+        serialized += '\\';
+      }
+      serialized += character;
+    }
+  }
+
+  return serialized;
+}
+
+function getEqualColumn(
+  key: string,
+  group: string | null,
+  keys: string[]
+): number {
+  if (group === null) { return key.length; }
+
+  return keys
+    .filter((candidate) => candidate.startsWith(`${group}.`))
+    .reduce((max, candidate) => Math.max(max, candidate.length), key.length);
 }
 
 /**
  * Wrap a long value across multiple continuation lines.
  * The key=first_chunk is on line 1; subsequent chunks are indented.
  */
-function wrapLine(key: string, value: string, wrapAt: number): string[] { // NOSONAR typescript:S3776
+function wrapLine(
+  prefix: string,
+  value: string,
+  wrapAt: number,
+  indentSize: number
+): string[] { // NOSONAR typescript:S3776
   const result: string[] = [];
-  const prefix = `${key}=`;
+  const indent = ' '.repeat(indentSize);
   let remaining = value;
   let isFirst = true;
 
   while (remaining.length > 0) {
-    const availableWidth = wrapAt - (isFirst ? prefix.length : 4);
+    const availableWidth = wrapAt - (isFirst ? prefix.length : indentSize);
     if (availableWidth <= 0 || remaining.length <= availableWidth) {
-      result.push(isFirst ? `${prefix}${remaining}` : `    ${remaining}`);
+      result.push(isFirst ? `${prefix}${remaining}` : `${indent}${remaining}`);
       break;
     }
 
@@ -103,7 +167,7 @@ function wrapLine(key: string, value: string, wrapAt: number): string[] { // NOS
 
     const chunk = remaining.slice(0, splitAt);
     remaining = remaining.slice(splitAt);
-    result.push(isFirst ? `${prefix}${chunk}\\` : `    ${chunk}\\`);
+    result.push(isFirst ? `${prefix}${chunk}\\` : `${indent}${chunk}\\`);
     isFirst = false;
   }
 

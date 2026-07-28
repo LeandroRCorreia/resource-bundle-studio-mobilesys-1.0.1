@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { EDITOR_VIEW_TYPE, WEBVIEW_SCRIPT, WEBVIEW_STYLES } from './constants';
+import { EDITOR_VIEW_TYPE, EXTENSION_ID, WEBVIEW_SCRIPT, WEBVIEW_STYLES } from './constants';
 import { ResourceBundle, InitPayload, WebviewMessage, EditPayload,
          AddKeyPayload, RemoveKeyPayload, RenameKeyPayload,
          DuplicateKeyPayload, ReorderKeyPayload, CopyValuePayload } from './types';
@@ -110,11 +110,13 @@ export class ResourceBundleStudioProvider
     message: WebviewMessage
   ): Promise<void> {
     const bundle = document.bundle;
-    const config = vscode.workspace.getConfiguration('resourceBundleStudio');
+    const config = vscode.workspace.getConfiguration(EXTENSION_ID);
     const serializeOpts = {
-      sortKeys: config.get<boolean>('sortKeysOnSave', false),
-      convertUnicode: config.get<boolean>('convertUnicodeOnSave', false),
+      sortKeys: config.get<boolean>('sortKeysOnSave', true),
+      convertUnicode: config.get<boolean>('convertUnicodeOnSave', true),
       lineWrapLength: config.get<number>('lineWrapLength', 0),
+      lineWrapIndent: config.get<number>('lineWrapIndent', 8),
+      crlf: true,
     };
 
     switch (message.type) {
@@ -305,7 +307,7 @@ export class ResourceBundleStudioProvider
   }
 
   private async buildInitPayload(bundle: ResourceBundle): Promise<InitPayload> {
-    const config = vscode.workspace.getConfiguration('resourceBundleStudio');
+    const config = vscode.workspace.getConfiguration(EXTENSION_ID);
     const refLocale: string = config.get('defaultLocale', 'en');
     const locales = sortedLocales(bundle, refLocale);
     const keys = mergeKeys(bundle, refLocale);
