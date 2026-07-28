@@ -68,6 +68,7 @@ export class ResourceBundleStudioProvider
       enableScripts: true,
       localResourceRoots: [
         vscode.Uri.joinPath(this.context.extensionUri, 'dist'),
+        vscode.Uri.joinPath(this.context.extensionUri, 'assets'),
       ],
     };
 
@@ -390,6 +391,9 @@ export class ResourceBundleStudioProvider
     const stylesUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this.context.extensionUri, 'dist', WEBVIEW_STYLES)
     );
+    const logoUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this.context.extensionUri, 'assets', 'mobilesys.png')
+    );
     const nonce = getNonce();
 
     return /* html */ `<!DOCTYPE html>
@@ -399,6 +403,7 @@ export class ResourceBundleStudioProvider
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'none';
+                 img-src ${webview.cspSource};
                  style-src ${webview.cspSource} 'unsafe-inline';
                  script-src 'nonce-${nonce}';">
   <link rel="stylesheet" href="${stylesUri}"/>
@@ -408,6 +413,9 @@ export class ResourceBundleStudioProvider
   <!-- Toolbar -->
   <div id="toolbar">
     <div id="toolbar-left">
+      <div id="company-logo">
+        <img src="${logoUri}" alt="TradePRO Tecnologia"/>
+      </div>
       <input id="search-input" type="text" placeholder="🔍 Filter keys or values…" autocomplete="off"/>
       <label class="toggle-label">
         <input id="toggle-tree" type="checkbox"/>
